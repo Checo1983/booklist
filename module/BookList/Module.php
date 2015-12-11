@@ -4,7 +4,7 @@ namespace BookList;
 use BookList\Model\Book;
 use BookList\Model\BookTable;
 use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TabletGateway\TabletGateway;
+use Zend\Db\TableGateway\TableGateway;
 
 class Module {
 	public function getAutoloaderConfig() {
@@ -36,7 +36,7 @@ class Module {
 					$dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
 					$resultSetPrototype = new ResultSet();
 					$resultSetPrototype->setArrayObjectPrototype(new Book());
-					return new TabletGateway('book', $dbAdapter, null, $resultSetPrototype);
+					return new TableGateway('book', $dbAdapter, null, $resultSetPrototype);
 				},
 			),
 		);

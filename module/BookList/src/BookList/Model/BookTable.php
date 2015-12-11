@@ -1,12 +1,12 @@
 <?php
 namespace BookList\Model;
 
-use Zend\TabletGateway\TabletGateway;
+use Zend\TableGateway\TableGateway;
 
 class BookTable {
 	protected $tableGateway;
 
-	public function __construct(TabletGateway $tableGateway) {
+	public function __construct(TableGateway $tableGateway) {
 		$this->tableGateway = $tableGateway;
 	}
 
