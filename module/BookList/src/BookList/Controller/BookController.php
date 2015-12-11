@@ -4,6 +4,7 @@ namespace BookList\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use BookList\Form\BookForm;
+use BookList\Model\Book;
 
 class BookController extends AbstractActionController {
 	protected $bookTable;
@@ -20,19 +21,39 @@ class BookController extends AbstractActionController {
 
 		$request = $this->getRequest();
 		if ($request->isPost()) {
-			# code...
+			$book = new Book();
+			$form->setInputFilter($book->getInputFilter());
+			$form->setData($request->getPost());
+
+			if ($form->isValid()) {
+				$book->exchangeArray($form->getData());
+				$this->getBookTable()->saveBook($book);
+			}
+
+			//Redirect to books list
+			return $this->redirect()->toRoute('book');
 		}
 		return array('form' => $form);
 	}
 
 	public function editAction() {
+		$id = (int) $this->params()->fromRoute('id', 0);
+		$book = $this->getBookTable()->getBook($id);
 		$form = new BookForm();
 		$form->bind($book);
 		$form->get('submit')->setAttribute('value', 'Edit');
 
 		$request = $this->getRequest();
 		if ($request->isPost()) {
-			# code...
+			$form->setInputFilter($book->getInputFilter());
+			$form->setData($request->getPost());
+
+			if ($form->isValid()) {
+				$this->getBookTable()->saveBook($book);
+
+				// Redirect
+				return $this->redirect()->toRoute('book');
+			}
 		}
 
 		return array(
@@ -49,12 +70,20 @@ class BookController extends AbstractActionController {
 
 		$request = $this->getRequest();
 		if ($request->isPost()) {
-			# code...
+			$del = $request->getPost('del', 'No');
+
+			if ($del == 'Yes') {
+				$id = (int) $request->getPost('id');
+				$this->getBookTable()->deleteBook($id);
+			}
+
+			// Redirect
+			return $this->redirect()->toRoute('book');
 		}
 
 		return array(
 			'id'   => $id,
-			//'book' => $form,
+			// 'book' => $this->getBookTable()->getBook($id)
 		);
 	}
 
