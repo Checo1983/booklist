@@ -33,6 +33,16 @@ class BookController extends AbstractActionController {
 			if ($form->isValid()) {
 				$book->exchangeArray($form->getData());
 				$this->getBookTable()->saveBook($book);
+
+				//send email
+				$mail = new Mail\Message();
+				$mail->setBody('A new book called ' . $book->title. ' has been added.');
+				$mail->setFrom('jp.ciphron@gmail.com', 'Zend Course');
+				$mail->addTo('jp.ciphron@gmail.com', 'Myself');
+				$mail->setSubject('A Book was added');
+
+				$transport = new Mail\Transport\Sendmail();
+				$transport->send($mail);
 			}
 
 			//Redirect to books list

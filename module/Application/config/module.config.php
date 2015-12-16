@@ -90,6 +90,7 @@ return array(
         ),
         'factories' => array(
             'navigation' => 'Zend\Navigation\Service\DefaultNavigationFactory',
+            'AuthenticationAdapter' => 'Application\Factory\AuthenticationAdapterFactory',
             'translator' => 'Zend\Mvc\Service\TranslatorServiceFactory',
         ),
     ),
@@ -101,6 +102,18 @@ return array(
                 'base_dir' => __DIR__ . '/../language',
                 'pattern'  => '%s.mo',
             ),
+        ),
+    ),
+    'book_app' => array(
+        'auth_adapter' => array(
+            'config' => array(
+                'accept_schemes' => 'basic digest',
+                'realm'          => 'Book List Site',
+                'digest_domains' => '/book',
+                'nonce_timeout'  => 3600,
+            ),
+            'basic_passwd_file'  => __DIR__ . '/real/basic_passwd.txt',
+            'digest_passwd_file' => __DIR__ . '/real/digest_passwd.txt',
         ),
     ),
     'controllers' => array(

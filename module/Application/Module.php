@@ -9,20 +9,54 @@
 
 namespace Application;
 
+use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Zend\ModuleManager\Feature\BootstrapListenerInterface;
+use Zend\EventManager\EventInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Http\Request as HttpRequest;
+use Zend\Http\Response as HttpResponse;
 
-class Module
+class Module implements ConfigProviderInterface, BootstrapListenerInterface
 {
-    public function onBootstrap(MvcEvent $e)
+    public function onBootstrap(EventInterface $event)
     {
-        $eventManager        = $e->getApplication()->getEventManager();
+        /*$eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);
+        $moduleRouteListener->attach($eventManager);*/
 
-        $translator = $e->getApplication()->getServiceManager()->get('translator');
+        $application = $event->getTarget();
+        $serviceManager = $application->getServiceManager();
+
+        $translator = $serviceManager->get('translator');
         $translator->setLocale(\Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']))
                    ->setFallbackLocale('en_US');
+
+        $application->getEventManager()
+                    ->attach(MvcEvent::EVENT_DISPATCH, function(MvcEvent $event) use ($serviceManager) {
+                        $request  = $event->getRequest();
+                        $response = $event->getResponse();
+
+                        if (! ($request instanceof HttpRequest
+                               && $response instanceof HttpResponse)) {
+                            return; // CLI application maybe?
+                        }
+
+            $authAdapter = $serviceManager->get('AuthenticationAdapter');
+            $authAdapter->setRequest($request);
+            $authAdapter->setResponse($response);
+            $result = $authAdapter->authenticate();
+
+            if ($result->isValid()) {
+                return; // OK
+            }
+
+            $response->setContent('Access denied');
+            $response->setStatusCode(HttpResponse::STATUS_CODE_401);
+            
+            $event->setResult($response); // to end
+            return false; // event propagation stop 
+        });
     }
 
     public function getConfig()
