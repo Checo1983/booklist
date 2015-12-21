@@ -2,18 +2,19 @@
 $title = 'Delete book';
 $this->headTitle($title);
 ?>
+
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
 <p>Are you sure that you want to delete
-	'<?php //echo $this->escapeHtml($title); ?>'?
+	'<?php echo $this->escapeHtml($book->title); ?>'?
 </p>
 
 <?php 
-$url = $this->url(
-	'book', 
+$url = $this->url('book', 
 	array(
 		'action' => 'delete',
-		'id'     => $this->id
-	)
-));
+		'id'     => $this->id,
+	));
 ?>
 <form action="<?php echo $url; ?>" method="post">
 <div>
@@ -23,5 +24,3 @@ $url = $this->url(
 	<input type="submit" name="del" value="No" />
 </div>
 </form>
-
-?>

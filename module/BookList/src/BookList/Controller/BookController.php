@@ -5,13 +5,14 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use BookList\Form\BookForm;
 use BookList\Model\Book;
+use Zend\Mail;
 
 class BookController extends AbstractActionController {
 	protected $bookTable;
 	
 	public function indexAction() {
 		$paginator = $this->getBookTable()->fetchAll(true);
-		$paginator->setCurremtPageNumber((int) $this->params()->fromQuery('page', 1));
+		$paginator->setCurrentPageNumber((int) $this->params()->fromQuery('page', 1));
 		$paginator->setItemCountPerPage(10);
 
 		return new ViewModel(array(
@@ -98,7 +99,7 @@ class BookController extends AbstractActionController {
 
 		return array(
 			'id'   => $id,
-			// 'book' => $this->getBookTable()->getBook($id)
+			'book' => $this->getBookTable()->getBook($id)
 		);
 	}
 
